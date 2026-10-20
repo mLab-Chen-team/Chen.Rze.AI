@@ -315,6 +315,42 @@ export default function Contact({
             </a>
           </div>
         </div>
+
+        <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line pt-6 text-xs text-ink-muted sm:justify-end">
+          <span>Zbudowane w programie</span>
+          {/* Zwykłe <img>: to statyczne SVG z public/, next/image nic by tu nie dało. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logos/mlab.svg"
+            alt="mLab"
+            width={113}
+            height={20}
+            className="h-4 w-auto"
+          />
+          <span aria-hidden="true" className="hidden text-line sm:inline">
+            |
+          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logos/mobitouch.svg"
+            alt="mobitouch"
+            width={83}
+            height={12}
+            className="h-3 w-auto"
+          />
+          <span aria-hidden="true" className="hidden text-line sm:inline">
+            |
+          </span>
+          <a
+            href="https://mkariera.pl"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cx("inline-flex min-h-11 items-center", footerLink)}
+          >
+            mkariera.pl
+            <span className="sr-only"> (otwiera się w nowej karcie)</span>
+          </a>
+        </div>
       </Container>
     </Section>
   );
