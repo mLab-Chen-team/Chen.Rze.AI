@@ -10,7 +10,6 @@ import {
   SectionHeading,
 } from "@/components/ui";
 
-import { navLinks } from "@/lib/fallback";
 import type { Content, FestivalEvent } from "@/lib/content";
 
 type IconProps = { className?: string };
@@ -160,8 +159,6 @@ const channelIcons: Record<string, ComponentType<IconProps> | undefined> = {
 const footerLink =
   "underline-offset-4 transition-colors duration-200 hover:text-seal hover:underline";
 
-const microLabel = "text-xs uppercase tracking-[0.18em] text-ink-faint";
-
 export default function Contact({
   event,
   contact,
@@ -173,15 +170,15 @@ export default function Contact({
 }) {
   const year = event.dateIso.slice(0, 4);
 
-  /* Etykiety są opisem interfejsu, wartości przychodzą z panelu. */
-  const facts = [
-    { label: "Termin", value: event.date },
-    { label: "Miejsce", value: event.venue },
-    { label: "Wstęp", value: event.admission },
-  ];
-
   return (
-    <Section id="kontakt" tone="paper" as="footer" labelledBy="kontakt-tytul">
+    <Section
+      id="kontakt"
+      tone="paper"
+      as="footer"
+      labelledBy="kontakt-tytul"
+      padded={false}
+      className="pt-24 pb-8 sm:pt-32 sm:pb-10 lg:pt-40 lg:pb-10"
+    >
       <Container>
         <SectionHeading
           id="kontakt-tytul"
@@ -259,36 +256,54 @@ export default function Contact({
             </ul>
           </div>
 
-          <div>
-            <Eyebrow>{contactCopy.navTitle}</Eyebrow>
+          {/* Na szerokich ekranach kolumna przylega do prawej krawędzi. */}
+          <div className="space-y-3 lg:flex lg:flex-col lg:items-end lg:text-right">
+            <div className="flex flex-col items-start lg:items-end">
+              <Eyebrow>Stworzone przez</Eyebrow>
+              <a
+                href="https://mkariera.pl"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center transition-opacity duration-200 hover:opacity-70"
+              >
+                {/* Zwykłe <img>: to statyczne SVG z public/, next/image nic by tu nie dało. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/logos/mlab.svg"
+                  alt="mLab"
+                  width={113}
+                  height={20}
+                  className="h-5 w-auto"
+                />
+                <span className="sr-only"> (otwiera się w nowej karcie)</span>
+              </a>
+            </div>
 
-            <ul className="mt-6 space-y-2">
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className={cx("text-base text-ink-muted", footerLink)}
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-            <dl className="mt-10 space-y-5">
-              {facts.map((fact) => (
-                <div key={fact.label}>
-                  <dt className={microLabel}>{fact.label}</dt>
-                  <dd className="mt-1 text-base text-ink-soft">{fact.value}</dd>
-                </div>
-              ))}
-            </dl>
+            <div className="flex flex-col items-start lg:items-end">
+              <Eyebrow>Organizowane przez</Eyebrow>
+              <a
+                href="https://mobitouch.net"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center transition-opacity duration-200 hover:opacity-70"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/logos/mobitouch.svg"
+                  alt="mobitouch"
+                  width={83}
+                  height={12}
+                  className="h-4 w-auto"
+                />
+                <span className="sr-only"> (otwiera się w nowej karcie)</span>
+              </a>
+            </div>
           </div>
         </div>
 
-        <InkRule className="mt-20" />
+        <InkRule className="mt-4 lg:mt-14" />
 
-        <div className="flex flex-col gap-4 pt-10 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 pt-8 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
             <SealStamp glyph="文武" className="h-10 w-10 shrink-0 text-seal" />
             <span className="flex flex-col">
@@ -314,42 +329,6 @@ export default function Contact({
               <span>{contactCopy.backToTop}</span>
             </a>
           </div>
-        </div>
-
-        <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line pt-6 text-xs text-ink-muted sm:justify-end">
-          <span>Zbudowane w programie</span>
-          {/* Zwykłe <img>: to statyczne SVG z public/, next/image nic by tu nie dało. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logos/mlab.svg"
-            alt="mLab"
-            width={113}
-            height={20}
-            className="h-4 w-auto"
-          />
-          <span aria-hidden="true" className="hidden text-line sm:inline">
-            |
-          </span>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/logos/mobitouch.svg"
-            alt="mobitouch"
-            width={83}
-            height={12}
-            className="h-3 w-auto"
-          />
-          <span aria-hidden="true" className="hidden text-line sm:inline">
-            |
-          </span>
-          <a
-            href="https://mkariera.pl"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cx("inline-flex min-h-11 items-center", footerLink)}
-          >
-            mkariera.pl
-            <span className="sr-only"> (otwiera się w nowej karcie)</span>
-          </a>
         </div>
       </Container>
     </Section>
