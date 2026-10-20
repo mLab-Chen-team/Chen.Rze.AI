@@ -1,0 +1,198 @@
+@import "tailwindcss";
+
+/* ============================================================
+   FESTIWAL „KSIĘGA I MIECZ” — WEN & WU
+
+   Kierunek: cisza. Biała przestrzeń, czarny tusz, jedna czerwień
+   pieczęci. Punkt odniesienia — chen.rzeszow.pl: strona stoi na
+   przestrzeni i typografii, nie na ozdobnikach.
+
+   Czego tu celowo NIE MA: gradientowych teł, ziarna papieru,
+   ciemnych sekcji, złota, bordiur, wzorów. Każdy z tych elementów
+   z osobna wygląda nieźle — dopiero razem dają wrażenie szablonu.
+   ============================================================ */
+
+@theme {
+  /* ── Kolory: biel, tusz, pieczęć ────────────────────────
+     Dziewięć wartości na cały serwis. Szarości tekstu wprost
+     z chen.rzeszow.pl (#333 główny, #666 drugorzędny). */
+  --color-paper: #ffffff;
+  --color-paper-soft: #f7f6f4;
+
+  --color-ink: #1a1a1a;
+  --color-ink-soft: #333333;
+  --color-ink-muted: #666666;
+  /* Przyciemnione z #8f8b87, które dawało 3,1:1 na złamanej bieli — poniżej
+     progu AA. Token mial byc tylko do kresek i podpisów, ale w praktyce trafia
+     na tekst (pinyin, listy cech, etykiety), więc musi go unieść. Teraz 4,8:1,
+     nadal o stopień jaśniejszy od `ink-muted`. */
+  --color-ink-faint: #6f6c69;
+
+  --color-line: #e4e1dd;
+
+  --color-seal: #c21c20;
+  --color-vermilion: #e34234;
+
+  /* ── Typografia ──────────────────────────────────────────
+     Lato jak w referencji, szeryfowy Tinos na nagłówki
+     (metrycznie zgodny z Times New Roman, którego używa
+     chen.rzeszow.pl). */
+  --font-display: var(--font-tinos), "Tinos", "Times New Roman", serif;
+  --font-body: var(--font-lato), "Lato", "Helvetica Neue", Arial, sans-serif;
+  --font-cjk: "Noto Serif SC", "Source Han Serif SC", "Songti SC", STSong,
+    SimSun, "Microsoft YaHei", serif;
+
+  /* ── Skala pisma ─────────────────────────────────────────
+     Podniesiona o jeden stopień względem domyślnej Tailwinda:
+     `text-base` to 18 px, a nie 16, a najmniejszy dopuszczalny
+     stopień (`text-xs`) to 15 px, nie 12. Dzięki temu poprawka
+     „za mała czcionka” działa wszędzie naraz, także w etykietach,
+     które wcześniej schodziły do 11 px. */
+  --text-xs: 0.9375rem; /* 15 px — twarda dolna granica */
+  --text-xs--line-height: 1.6;
+  --text-sm: 1rem; /* 16 */
+  --text-sm--line-height: 1.65;
+  --text-base: 1.125rem; /* 18 */
+  --text-base--line-height: 1.75;
+  --text-lg: 1.25rem; /* 20 */
+  --text-lg--line-height: 1.7;
+  --text-xl: 1.5rem; /* 24 */
+  --text-xl--line-height: 1.5;
+  --text-2xl: 1.75rem; /* 28 — h3 jak w referencji */
+  --text-2xl--line-height: 1.4;
+  --text-3xl: 2.125rem; /* 34 */
+  --text-3xl--line-height: 1.3;
+  --text-4xl: 2.5rem; /* 40 — h2 jak w referencji */
+  --text-4xl--line-height: 1.2;
+  --text-5xl: 3.25rem; /* 52 */
+  --text-5xl--line-height: 1.12;
+  --text-6xl: 4rem; /* 64 */
+  --text-6xl--line-height: 1.06;
+  --text-7xl: 5.5rem; /* 88 */
+  --text-7xl--line-height: 1;
+  --text-8xl: 7rem; /* 112 */
+  --text-8xl--line-height: 0.96;
+
+  /* ── Cień ────────────────────────────────────────────────
+     Jeden, ledwie widoczny. Karty z cieniami to pierwszy krok
+     w stronę szablonu, więc używamy go wyłącznie tam, gdzie coś
+     naprawdę unosi się nad stroną (panel transmisji). */
+  --shadow-float: 0 1px 2px rgb(0 0 0 / 0.04),
+    0 18px 44px -20px rgb(0 0 0 / 0.28);
+
+  /* ── Animacje ────────────────────────────────────────────
+     Zostały dwie i obie są powolne. */
+  --animate-ink-in: ink-in 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-breathe: breathe 6s ease-in-out infinite;
+}
+
+@keyframes ink-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* ============================================================
+   PODSTAWA
+   ============================================================ */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink-soft);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  [id]:is(section, footer, main) {
+    scroll-margin-top: 6rem;
+  }
+
+  /* Nagłówki: szeryf, ciemny tusz, ciasna interlinia. */
+  :is(h1, h2, h3, h4) {
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    font-weight: 700;
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-seal) 20%, transparent);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-seal);
+    outline-offset: 3px;
+    border-radius: 1px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ============================================================
+   NIELICZNE POMOCNIKI
+   Zostały tylko te, które naprawdę są używane więcej niż raz.
+   ============================================================ */
+
+/* Cienka kreska tuszem — jedyny separator w całym serwisie. */
+@utility rule-ink {
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-line) 12%,
+    var(--color-line) 88%,
+    transparent
+  );
+}
+
+/* Pionowa kolumna znaków chińskich — jak podpis na zwoju. */
+@utility vertical-cjk {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-family: var(--font-cjk);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
