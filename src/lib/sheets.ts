@@ -50,7 +50,16 @@ export const createJWT = () => {
   return `${signingInput}.${sign}`;
 };
 
+/* Token Google jest ważny godzinę — trzymamy go w pamięci, zamiast prosić o
+   nowy przy każdym zgłoszeniu. */
+let cachedToken: { value: string; expiresAt: number } | null = null;
+const TOKEN_TTL_MS = 50 * 60 * 1000;
+
 export async function getAccessToken(): Promise<string> {
+  if (cachedToken && cachedToken.expiresAt > Date.now()) {
+    return cachedToken.value;
+  }
+
   const urlParams = new URLSearchParams({
     grant_type: URN,
     assertion: createJWT(),
@@ -66,10 +75,11 @@ export async function getAccessToken(): Promise<string> {
       console.error("[sheets] Nie udało się uzyskać tokenu", {
         status: response.status,
         error: rawParsed,
-        description: raw,
       });
     } catch {
-      console.error(raw);
+      console.error("[sheets] Nieczytelna odpowiedź przy pobieraniu tokenu", {
+        status: response.status,
+      });
     }
 
     throw new Error("Błąd w procesie uzyskiwania tokenu dostępu");
@@ -80,6 +90,8 @@ export async function getAccessToken(): Promise<string> {
 
   if (typeof access_token !== "string")
     throw new Error("Błędny output - token dostępu nie jest stringiem");
+
+  cachedToken = { value: access_token, expiresAt: Date.now() + TOKEN_TTL_MS };
 
   return access_token;
 }
@@ -124,10 +136,11 @@ export const appendRow = async (values: Row): Promise<void> => {
       console.error("[sheets] Nie udało się dodać danych do bazy", {
         status: response.status,
         error: rawParsed,
-        description: raw,
       });
     } catch {
-      console.error(raw);
+      console.error("[sheets] Nieczytelna odpowiedź przy dodawaniu danych", {
+        status: response.status,
+      });
     }
     throw new Error("Błąd w procesie dodawania danych do arkusza");
   }

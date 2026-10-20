@@ -54,7 +54,10 @@ function StructuredData({ content }: { content: Content }) {
     <script
       type="application/ld+json"
 
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      /* Ucieczka "<", żeby tekst z CMS nie mógł zamknąć znacznika <script>. */
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(data).replace(/</g, "\\u003c"),
+      }}
     />
   );
 }

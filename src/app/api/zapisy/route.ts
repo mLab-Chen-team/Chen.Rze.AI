@@ -1,14 +1,63 @@
 import { FIELD_NAMES, validateField, type FieldName } from "@/lib/registration";
 import { getContent } from "@/lib/content";
 import { appendRow } from "@/lib/sheets";
+import { isRateLimited } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
+const MAX_BODY_BYTES = 10_000;
+/* Dość luźny limit: na wydarzeniu wiele osób może zapisywać się z jednej sieci Wi-Fi. */
+const RATE_LIMIT = 10;
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+
+function clientIp(request: Request): string {
+  const forwarded = request.headers.get("x-forwarded-for");
+  return forwarded?.split(",")[0]?.trim() || "unknown";
+}
+
+/* Przeglądarka dla POST zawsze wysyła Origin. Jeśli jest i nie pasuje do
+   hosta strony, żądanie przyszło z cudzej witryny. */
+function isSameOrigin(request: Request): boolean {
+  const origin = request.headers.get("origin");
+  if (!origin) return true;
+
+  const host =
+    request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+
+  try {
+    return new URL(origin).host === host;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) {
+    return Response.json({ ok: false }, { status: 403 });
+  }
+
+  if (!request.headers.get("content-type")?.includes("application/json")) {
+    return Response.json({ ok: false }, { status: 415 });
+  }
+
+  if (isRateLimited(clientIp(request), RATE_LIMIT, RATE_WINDOW_MS)) {
+    return Response.json(
+      {
+        ok: false,
+        message: "Zbyt wiele prób. Spróbuj ponownie za kilka minut.",
+      },
+      { status: 429, headers: { "Retry-After": "600" } },
+    );
+  }
+
   let body: unknown;
 
   try {
-    body = await request.json();
+    const raw = await request.text();
+    if (raw.length > MAX_BODY_BYTES) {
+      return Response.json({ ok: false }, { status: 413 });
+    }
+    body = JSON.parse(raw);
   } catch {
     return Response.json({ ok: false }, { status: 400 });
   }

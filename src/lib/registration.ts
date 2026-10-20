@@ -1,3 +1,12 @@
+export const MAX_LENGTH = {
+  firstName: 80,
+  lastName: 80,
+  email: 254,
+  phone: 30,
+  workshop: 200,
+  consent: 5,
+} as const;
+
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/;
 
 export const FIELD_NAMES = [
@@ -20,6 +29,10 @@ export function validateField(name: FieldName, raw: string): string | null {
       : "To pole jest wymagane.";
   }
 
+  if (value.length > MAX_LENGTH[name]) {
+    return `Maksymalnie ${MAX_LENGTH[name]} znaków.`;
+  }
+
   if (name === "firstName" || name === "lastName") {
     if (value.length < 2) return "Podaj co najmniej 2 znaki.";
     return null;
@@ -32,10 +45,12 @@ export function validateField(name: FieldName, raw: string): string | null {
 
   if (name === "workshop") return null;
 
-  /* Zgoda przychodzi jako "true" albo pusty łańcuch, więc niezaznaczone pole
-     wyłapuje już warunek na pustą wartość wyżej — tu zostaje tylko podmiana
-     komunikatu na taki, który mówi, o co chodzi. */
-  if (name === "consent") return null;
+  /* Zgoda przychodzi jako "true" albo pusty łańcuch. Pusty wyłapuje warunek
+     wyżej, a serwer nie może przyjąć żadnej innej wartości niż "true"
+     (np. "false" wysłane ręcznie do API). */
+  if (name === "consent") {
+    return value === "true" ? null : "Bez zgody nie możemy przyjąć zgłoszenia.";
+  }
 
   const compact = value.replace(/[\s\-().]/g, "");
   const national = compact.startsWith("+48")
